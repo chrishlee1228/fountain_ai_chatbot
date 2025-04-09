@@ -120,7 +120,7 @@ function Chatbot() {
             <strong>{msg.role === 'user' ? 'You' : 'Fountain AI'}:</strong> {msg.content}
           </div>
         ))}
-        {loading && <div>⏳ AI is thinking...</div>}
+        {loading && <div>Fountain AI Chatbot is thinking...</div>}
       </div>
     </div>
   );
