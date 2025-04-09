@@ -1,4 +1,3 @@
-// npm start
 import React, { useState, useEffect } from 'react';
 
 function Chatbot() {
@@ -30,9 +29,7 @@ function Chatbot() {
     setLoading(true);
 
     try {
-      // const response = await fetch('http://localhost:8000/chat', {
-        const response = await fetch('https://fountain-ai-chatbot-backend.onrender.com/chat', {
-
+      const response = await fetch('https://fountain-ai-chatbot-backend.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -46,7 +43,6 @@ function Chatbot() {
       const assistantMessage = { role: 'assistant', content: data.reply };
       setMessages(prev => [...prev, assistantMessage]);
 
-      // Store session_id if it’s new
       if (!sessionId && data.session_id) {
         setSessionId(data.session_id);
         localStorage.setItem('session_id', data.session_id);
@@ -60,37 +56,65 @@ function Chatbot() {
   };
 
   return (
-    <div style={{ width: '90%', maxWidth: '600px', margin: '2rem auto', fontFamily: "'Merriweather', serif" }}>
+    <div style={{ width: '95%', maxWidth: '600px', margin: '2rem auto', fontFamily: "'Merriweather', serif" }}>
       <h2 style={{ fontWeight: '700', textAlign: 'center' }}>
         <strong>Fountain AI Chatbot</strong>
       </h2>
 
       <img
-  src="/Fountain AI LLC - Logo.png"
-  alt="Fountain AI Logo"
-  style={{
-    maxWidth: '120px',
-    marginBottom: '1rem',
-    display: 'block',
-    marginLeft: 'auto',
-    marginRight: 'auto'
-  }}
-/>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+        src="/Fountain AI LLC - Logo.png"
+        alt="Fountain AI Logo"
+        style={{
+          maxWidth: '120px',
+          marginBottom: '1rem',
+          display: 'block',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}
+      />
+
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '1rem'
+      }}>
         <input
           type="text"
           value={userInput}
           onChange={e => setUserInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder="Ask something..."
-          style={{ width: '70%', padding: '0.5rem' }}
+          style={{
+            flex: '1 1 100%',
+            padding: '0.75rem',
+            fontSize: '1rem',
+            boxSizing: 'border-box',
+            maxWidth: '100%'
+          }}
         />
-        <button onClick={sendMessage} style={{ padding: '0.5rem 1rem' }}>
+        <button
+          onClick={sendMessage}
+          style={{
+            padding: '0.75rem 1.25rem',
+            fontSize: '1rem',
+            width: '100%',
+            maxWidth: '200px'
+          }}
+        >
           Send
         </button>
       </div>
 
-      <div style={{ textAlign: 'left' }}>
+      <div style={{
+        textAlign: 'left',
+        maxHeight: '300px',
+        overflowY: 'auto',
+        padding: '0 1rem',
+        border: '1px solid #ccc',
+        borderRadius: '8px'
+      }}>
         {messages.map((msg, i) => (
           <div key={i} style={{ margin: '0.5rem 0' }}>
             <strong>{msg.role === 'user' ? 'You' : 'Fountain AI'}:</strong> {msg.content}
