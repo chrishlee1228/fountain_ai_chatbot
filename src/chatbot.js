@@ -6,6 +6,7 @@ function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState(null);
   const [sessionId, setSessionId] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null); // For Fuzzy results download
 
   useEffect(() => {
     let storedUserId = localStorage.getItem('user_id');
@@ -55,6 +56,10 @@ function Chatbot() {
     }
   };
 
+  const clearChat = () => {
+    setMessages([]);
+  };
+
   return (
     <div style={{ width: '95%', maxWidth: '600px', margin: '2rem auto', fontFamily: "'Merriweather', serif" }}>
       <h2 style={{ fontWeight: '700', textAlign: 'center' }}>
@@ -73,6 +78,7 @@ function Chatbot() {
         }}
       />
 
+      {/* Chat Input & Buttons */}
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
@@ -94,19 +100,38 @@ function Chatbot() {
             maxWidth: '100%'
           }}
         />
-        <button
-          onClick={sendMessage}
-          style={{
-            padding: '0.75rem 1.25rem',
-            fontSize: '1rem',
-            width: '100%',
-            maxWidth: '200px'
-          }}
-        >
-          Send
-        </button>
+        <div style={{
+          display: 'flex',
+          flex: '1 1 100%',
+          gap: '0.5rem',
+          justifyContent: 'center'
+        }}>
+          <button
+            onClick={sendMessage}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              flex: '1 1 50%',
+              maxWidth: '200px'
+            }}
+          >
+            Send
+          </button>
+          <button
+            onClick={clearChat}
+            style={{
+              padding: '0.75rem',
+              fontSize: '1rem',
+              flex: '1 1 50%',
+              maxWidth: '200px'
+            }}
+          >
+            Clear Chat
+          </button>
+        </div>
       </div>
 
+      {/* Chat Display */}
       <div style={{
         textAlign: 'left',
         maxHeight: '300px',
@@ -121,6 +146,55 @@ function Chatbot() {
           </div>
         ))}
         {loading && <div>Fountain AI Chatbot is thinking...</div>}
+      </div>
+
+      {/* Excel File Upload */}
+      <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+        <h4>Upload Excel for Fuzzy Matching</h4>
+        <input
+          type="file"
+          accept=".xlsx,.xls"
+          onChange={(e) => setSelectedFile(e.target.files[0])}
+        />
+        <button
+          style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', fontSize: '1rem' }}
+          onClick={async () => {
+            if (!selectedFile) {
+              alert("Please select a file first.");
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+              const response = await fetch('http://localhost:8000/fuzzy-match', {
+                method: 'POST',
+                body: formData,
+              });
+
+              if (!response.ok) throw new Error('Upload failed');
+
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'fuzzy_matched.xlsx';
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            } catch (error) {
+              alert('❌ Error uploading file for fuzzy matching.');
+              console.error(error);
+            }
+          }}
+        >
+          Submit for Matching
+        </button>
+
+        <p style={{ fontSize: '0.9rem', color: '#555' }}>
+          Your Excel file should have columns: <strong>Messy Name</strong> and <strong>Correct Name</strong>
+        </p>
       </div>
     </div>
   );
