@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown'; // ← ✅ Import at the top
 
 function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -158,11 +159,26 @@ function Chatbot() {
         border: '1px solid #ccc',
         borderRadius: '8px'
       }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{ margin: '0.5rem 0' }}>
-            <strong>{msg.role === 'user' ? 'You' : 'Fountain AI'}:</strong> {msg.content}
+      {messages.map((msg, i) => (
+        <div key={i} style={{ margin: '0.5rem 0' }}>
+          <strong>{msg.role === 'user' ? 'You' : 'Fountain AI'}:</strong>
+          <div style={{ marginTop: '0.25rem' }}>
+            <ReactMarkdown
+              components={{
+                strong: ({ children }) => <>{children}</>,
+                em: ({ children }) => <>{children}</>,
+                ul: ({ children }) => <>{children}</>,
+                ol: ({ children }) => <>{children}</>,
+                li: ({ children }) => <div>{children}</div>,
+              }}
+            >
+              {msg.content}
+            </ReactMarkdown>
           </div>
-        ))}
+        </div>
+      ))}
+
+
         {loading && <div>Fountain AI Chatbot is thinking...</div>}
       </div>
 
