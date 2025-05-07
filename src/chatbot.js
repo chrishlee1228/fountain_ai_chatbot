@@ -30,15 +30,32 @@ function Chatbot() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://fountain-ai-chatbot-backend.onrender.com/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: userId,
-          session_id: sessionId,
-          message: userInput,
-        }),
-      });
+      let response;
+
+      // Try local backend first
+      try {
+        response = await fetch('http://localhost:8000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            session_id: sessionId,
+            message: userInput,
+          }),
+        });
+        if (!response.ok) throw new Error('Local backend failed');
+      } catch (err) {
+        // Fallback to production backend
+        response = await fetch('https://fountain-ai-chatbot-backend.onrender.com/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            session_id: sessionId,
+            message: userInput,
+          }),
+        });
+      }
 
       const data = await response.json();
       const assistantMessage = { role: 'assistant', content: data.reply };
@@ -49,6 +66,7 @@ function Chatbot() {
         localStorage.setItem('session_id', data.session_id);
       }
     } catch (error) {
+      console.error("❌ Final fallback error:", error);
       setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Error: Could not get response.' }]);
     } finally {
       setUserInput('');
